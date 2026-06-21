@@ -7,18 +7,12 @@ export default defineConfig({
     minify: false,
     lib: {
       entry: ['./lib/main.tsx'],
-      name: 'inertia-kaioken',
+      name: 'inertia-kiru',
       fileName: (extension, name) => extension === 'es'  ? `${name}.js` : `${name}.${extension}.js`,
     },
 
     rollupOptions: {
-      external: ['kiru', 'kaioken/utils', '@inertiajs/core'],
-      output: {
-        globals: {
-          "kaioken": 'Kaioken',
-          "kaioken/utils": 'Kaioken',
-        },
-      },
+      external: ['kiru', 'kiru/ssr/client', '@inertiajs/core'],
     },
   },
   plugins: [kaioken(), dts({
