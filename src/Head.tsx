@@ -1,40 +1,44 @@
-import { renderToString, useEffect, useMemo } from "kaioken"
+import { renderToString } from "kiru"
 import { useHead } from "./context"
+import { onMount } from "kiru"
 
 type HeadProps = {
   title?: string
+  children?: JSX.Children
 }
-export const Head: Kaioken.FC<HeadProps> = (props) => {
+export const Head: Kiru.FC<HeadProps> = (props) => {
   const headManager = useHead()
-  const provider = useMemo(() => headManager.createProvider(), [headManager])
+  const provider = headManager.createProvider()
   
-  useEffect(() => {
+  onMount(() => {
     return () => {
       provider.disconnect()
     }
-  }, [provider])
+  })
 
-  let childrens = props.children
-  if (typeof childrens === 'object' && !Array.isArray(childrens)) {
-    childrens = [childrens]
-  } else if (childrens == null) {
-    childrens = []
+  return () => {
+    let childrens = props.children
+    if (typeof childrens === 'object' && !Array.isArray(childrens)) {
+      childrens = [childrens]
+    } else if (childrens == null) {
+      childrens = []
+    }
+
+    childrens = (childrens as Kiru.VNode[]).map(
+      el => renderToString(() => ({
+        ...el,
+        props: {
+          ...el.props,
+          inertia: true,
+        }
+      }))
+    )
+
+    if (props.title) {
+      childrens.splice(0, 0, `<title inertia="true">${props.title}</title>`)
+    }
+
+    provider.update(childrens as string[])
+    return null
   }
-
-  childrens = (childrens as Kaioken.VNode[]).map(
-    el => renderToString(() => ({
-      ...el,
-      props: {
-        ...el.props,
-        inertia: true,
-      }
-    }))
-  )
-
-  if (props.title) {
-    childrens.splice(0, 0, `<title inertia="true">${props.title}</title>`)
-  }
-
-  provider.update(childrens as string[])
-  return null
 }

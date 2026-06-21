@@ -1,31 +1,31 @@
 import { PollOptions, ReloadOptions, router } from '@inertiajs/core'
-import { useEffect, useRef } from 'kaioken'
+import { onMount, ref } from 'kiru'
 
 export const usePoll = (
   interval: number,
-  requestOptions: ReloadOptions = {},
+  requestOptions: ReloadOptions | (() => ReloadOptions) = {},
   options: PollOptions = {
     keepAlive: false,
     autoStart: true,
-  }
+  },
 ) => {
-  const pollRef = useRef(
-    router.poll(interval, requestOptions, {
-      ...options,
-      autoStart: false,
-    }),
-  )
+  const latest = ref(requestOptions)
+  latest.current = requestOptions
 
-  useEffect(() => {
-    if (options.autoStart ?? true) {
-      pollRef.current.start()
-    }
+  const pollRef = ref<ReturnType<typeof router.poll> | null>(null)
 
-    return () => pollRef.current.stop()
-  }, [])
+  onMount(() => {
+    pollRef.current = router.poll(
+      interval,
+      typeof requestOptions === 'function' ? () => (latest.current as () => ReloadOptions)() : requestOptions,
+      { ...options, autoStart: options.autoStart ?? true },
+    )
+
+    return () => pollRef.current?.destroy()
+  })
 
   return {
-    stop: pollRef.current.stop,
-    start: pollRef.current.start,
+    stop: () => pollRef.current?.stop(),
+    start: () => pollRef.current?.start(),
   }
 }
