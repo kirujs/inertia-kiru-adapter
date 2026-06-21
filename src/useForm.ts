@@ -22,7 +22,7 @@ import {
 import { cloneDeep } from 'es-toolkit'
 import type { NamedInputEvent, PrecognitionPath, ValidationConfig, Validator } from 'laravel-precognition'
 import { ref, Signal, ComputedSignal } from 'kiru'
-import useFormState, { SetDataAction, SetDataByKeyValuePair, SetDataByMethod, SetDataByObject } from './useFormState'
+import { useFormState, SetDataAction, SetDataByKeyValuePair, SetDataByMethod, SetDataByObject } from './useFormState'
 import { useRemember } from './useRemember'
 
 // Re-export types that were moved to useFormState

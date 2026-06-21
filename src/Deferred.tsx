@@ -17,11 +17,11 @@ export const Deferred: DeferredComp = () => {
   }
 
   const loaded = signal(false)
-  // TODO: I think page props need to be a signal now
-  const pageProps = usePage().props
+  const page = usePage()
   const keys = $.derive(props => Array.isArray(props.data) ? props.data : [props.data])
 
   effect(() => {
+    const pageProps = page.value?.props ?? {} as Record<string, unknown>
     loaded.value = keys.value.every((key) => pageProps[key] !== undefined)
   })
 

@@ -1,6 +1,6 @@
 import { config as coreConfig } from '@inertiajs/core'
 
-type KiruInertiaAppConfig = {
+export type KiruInertiaAppConfig = {
   strictMode?: boolean
 }
 

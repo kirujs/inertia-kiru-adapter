@@ -113,7 +113,7 @@ export interface UseFormStateReturn<TForm extends object> {
   withAllErrors: { enabled: () => boolean; enable: () => void }
 }
 
-export default function useFormState<TForm extends object>(
+export function useFormState<TForm extends object>(
   options: UseFormStateOptions<TForm>,
 ): UseFormStateReturn<TForm> {
   const { data: dataOption, useDataState, useErrorsState } = options
