@@ -1,5 +1,5 @@
 import { createHeadManager, Page } from "@inertiajs/core";
-import { createContext, useContext } from "kaioken";
+import { createContext, useContext } from "kiru";
 
 export const PageContext = createContext<Page | null>(null)
 PageContext.displayName = 'InertiaPageContext'

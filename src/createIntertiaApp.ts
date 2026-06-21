@@ -1,5 +1,5 @@
 import { Page, PageProps, PageResolver, setupProgress } from "@inertiajs/core"
-import { createElement, renderToString } from 'kaioken'
+import { createElement, renderToString } from 'kiru'
 import { App } from "./App"
 import { encodeHtmlEntities } from "./utils"
 

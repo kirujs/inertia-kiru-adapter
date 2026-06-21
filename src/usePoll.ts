@@ -1,5 +1,5 @@
 import { PollOptions, ReloadOptions, router } from '@inertiajs/core'
-import { useEffect, useRef } from 'kaioken'
+import { onMount, ref } from 'kiru'
 
 export const usePoll = (
   interval: number,
@@ -9,20 +9,20 @@ export const usePoll = (
     autoStart: true,
   }
 ) => {
-  const pollRef = useRef(
+  const pollRef = ref(
     router.poll(interval, requestOptions, {
       ...options,
       autoStart: false,
     }),
   )
 
-  useEffect(() => {
+  onMount(() => {
     if (options.autoStart ?? true) {
       pollRef.current.start()
     }
 
     return () => pollRef.current.stop()
-  }, [])
+  })
 
   return {
     stop: pollRef.current.stop,

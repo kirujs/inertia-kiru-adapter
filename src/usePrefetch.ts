@@ -1,5 +1,5 @@
 import { router, VisitOptions } from '@inertiajs/core'
-import { useEffect, useSignal, Signal } from 'kaioken'
+import { signal, onMount, Signal } from 'kiru'
 
 type PrefetchResult = {
   lastUpdatedAt: Signal<number | null>
@@ -12,11 +12,11 @@ export const usePrefetch = (options: VisitOptions = {}): PrefetchResult  => {
   const cached = typeof window === 'undefined' ? null : router.getCached(window.location.pathname, options)
   const inFlight = typeof window === 'undefined' ? null : router.getPrefetching(window.location.pathname, options)
 
-  const lastUpdatedAt = useSignal<number | null>(cached?.staleTimestamp || null)
-  const isPrefetching = useSignal(inFlight !== null)
-  const isPrefetched = useSignal(cached !== null)
+  const lastUpdatedAt = signal<number | null>(cached?.staleTimestamp || null)
+  const isPrefetching = signal(inFlight !== null)
+  const isPrefetched = signal(cached !== null)
 
-  useEffect(() => {
+  onMount(() => {
     const onPrefetchingListener = router.on('prefetching', (e) => {
       if (e.detail.visit.url.pathname === window.location.pathname) {
         isPrefetching.value = true
@@ -35,7 +35,7 @@ export const usePrefetch = (options: VisitOptions = {}): PrefetchResult  => {
       onPrefetchedListener()
       onPrefetchingListener()
     }
-  }, [])
+  })
 
   return {
     lastUpdatedAt,

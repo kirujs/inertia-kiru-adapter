@@ -1,59 +1,57 @@
 import { createHeadManager, Page, PageResolver, router } from "@inertiajs/core"
-import { createElement, useEffect, useMemo, useState } from "kaioken"
 import { HeadContext, PageContext } from "./context"
+import { onMount, signal, computed, createElement } from 'kiru'
 
 type AppProps = {
   initialPage: Page,
   resolveComponent: PageResolver,
-  initialComponent: Kaioken.FC,
+  initialComponent: Kiru.FC,
   titleCallBack?: (title: string) => string,
   onHeadUpdate?: (elements: string[]) => void,
 }
 
-export const App: Kaioken.FC<AppProps> = (props) => {
-  const [inertiaCtx, set] = useState({
+export const App: Kiru.FC<AppProps> = (props) => {
+  const inertiaCtx = signal({
     component: props.initialComponent as unknown,
     page: props.initialPage as Page,
     key: undefined as number | undefined,
   })
 
-  const headManager = useMemo(() => {
-    return createHeadManager(
-      typeof window === 'undefined',
-      props.titleCallBack || ((title: string) => title),
+  const headManager = createHeadManager(
+    typeof window === 'undefined',
+    props.titleCallBack || ((title: string) => title),
       props.onHeadUpdate || (() => {})
-    )
-  }, [])
+  )
 
-  useEffect(() => {
+  onMount(() => {
     router.init({
       initialPage: props.initialPage,
       resolveComponent: props.resolveComponent,
       swapComponent: async ({ component, page, preserveState }) => {
-        set(() => ({
+        inertiaCtx.value = {
           component,
           page,
-          key: preserveState ? inertiaCtx.key : Date.now(),
-        }))
+          key: preserveState ? inertiaCtx.value.key : Date.now(),
+        }
       }
     })
 
     router.on('navigate', () => headManager.forceUpdate())
-  }, [])
+  })
 
-  // @ts-expect-error layout
-  const layout = inertiaCtx?.component?.layout
-  const renderChildren = useMemo(() => {
-    if (inertiaCtx.component) {
-      const child = createElement(inertiaCtx.component as Kaioken.FC, {
-        key: inertiaCtx.key,
-        ...inertiaCtx.page.props
+  const renderChildren = computed(() => {
+    // @ts-expect-error layout
+    const layout = inertiaCtx.value?.component?.layout
+    if (inertiaCtx.value.component) {
+      const child = createElement(inertiaCtx.value.component as Kiru.FC, {
+        key: inertiaCtx.value.key,
+        ...inertiaCtx.value.page.props
       })
 
       // @ts-expect-error .layout is not defined on unknown
-      if (typeof inertiaCtx.component.layout === 'function') {
+      if (typeof inertiaCtx.value.component.layout === 'function') {
         // @ts-expect-error .layout is not defined on unknown
-        return createElement(inertiaCtx.component.layout, {
+        return createElement(inertiaCtx.value.component.layout, {
           children: child,
         })
       }
@@ -62,13 +60,15 @@ export const App: Kaioken.FC<AppProps> = (props) => {
     }
 
     return undefined
-  }, [inertiaCtx.component, inertiaCtx.key, inertiaCtx.page, layout])
+  })
 
-  return <PageContext.Provider value={inertiaCtx.page}>
-    <HeadContext.Provider value={headManager}>
-      {renderChildren}
-    </HeadContext.Provider>
-  </PageContext.Provider>
+  return () => (
+    <PageContext value={inertiaCtx.value.page}>
+      <HeadContext value={headManager}>
+        {renderChildren.value}
+      </HeadContext>
+    </PageContext>
+  )
 }
 
 App.displayName = 'InertiaApp'

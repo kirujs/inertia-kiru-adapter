@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import kaioken from "vite-plugin-kaioken"
+import kaioken from "vite-plugin-kiru"
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
     },
 
     rollupOptions: {
-      external: ['kaioken', 'kaioken/utils', '@inertiajs/core'],
+      external: ['kiru', 'kaioken/utils', '@inertiajs/core'],
       output: {
         globals: {
           "kaioken": 'Kaioken',
@@ -22,7 +22,7 @@ export default defineConfig({
     },
   },
   plugins: [kaioken(), dts({
-    rollupTypes: false,
+    //  rollupTypes: false,
     exclude: ['vite.config.ts']
   })]
 })
